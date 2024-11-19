@@ -215,7 +215,7 @@ xEOF
   # the volumes
   if \
     [ -n "${LAUNCH_VOLUMES}" ] || \
-    [ -n "${LAUNCH_EXT_VOLUMES}" ] || \
+    [ -n "${LAUNCH_EXT_VOLUMES}" ] \
   ; then
     echo "    volumes:" >> "${COMPOSE_FILE}"
 
