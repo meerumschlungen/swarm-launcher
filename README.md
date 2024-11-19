@@ -57,6 +57,7 @@ The following environment variables are important if you don't supply a `/docker
 | `LAUNCH_PRIVILEGED`     | `false`                    | NO            | Set this to `true` if you want to start a privileged container |
 | `LAUNCH_DEVICES`        | -                          | NO            | Space separated list of DeviceOnHost:DeviceInContainer |
 | `LAUNCH_VOLUMES`        | -                          | NO            | Space separated list of File/FolderOnHost:File/FolderInContainer |
+| `LAUNCH_EXT_VOLUMES`    | -                          | NO            | Space separated list of ExistingNamedVolume:File/FolderInContainer |
 | `LAUNCH_HOST_NETWORK`   | `false`                    | NO            | Set this to `true` to start the container on the host network. This option is not compatible with `LAUNCH_NETWORK_MODE`, `LAUNCH_PORTS`, `LAUNCH_NETWORKS`, `LAUNCH_EXT_NETWORKS` and `LAUNCH_EXT_NETWORKS_IPV4` |
 | `LAUNCH_NETWORK_MODE`   | -                   | NO            | Set this to a value that will be used as `network_mode`. This option is not compatible with `LAUNCH_HOST_NETWORK`, `LAUNCH_PORTS`, `LAUNCH_NETWORKS`, `LAUNCH_EXT_NETWORKS` and `LAUNCH_EXT_NETWORKS_IPV4` |
 | `LAUNCH_PORTS`          | -                          | NO            | Space separated list of PortOnHost:PortInContainer |
