@@ -61,8 +61,10 @@ _startup_check(){
 
   # Check if external volumes are present
   if [ -n "${LAUNCH_EXT_VOLUMES}" ]; then
-    for VOLUME in ${LAUNCH_EXT_VOLUMES}; do
-      VOLUME_NAME=$(docker network inspect "${VOLUME}"|jq -r ".[].Name")
+    read -ra ARR <<<"${LAUNCH_EXT_VOLUMES}"
+    for VOLUME in "${ARR[@]}"; do
+      IFS=':' read -r VOLUME PATH <<< "${VOLUME}"
+      VOLUME_NAME=$(docker volume inspect "${VOLUME}"|jq -r ".[].Name")
       if [ -z "${VOLUME_NAME}" ]; then
         _echo "ERROR! Volume ${VOLUME} does not exist. Exiting."
         NEED_EXIT=true
