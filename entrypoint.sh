@@ -59,6 +59,17 @@ _startup_check(){
     fi
   fi
 
+  # Check if external volumes are present
+  if [ -n "${LAUNCH_EXT_VOLUMES}" ]; then
+    for VOLUME in ${LAUNCH_EXT_VOLUMES}; do
+      VOLUME_NAME=$(docker network inspect "${VOLUME}"|jq -r ".[].Name")
+      if [ -z "${VOLUME_NAME}" ]; then
+        _echo "ERROR! Volume ${VOLUME} does not exist. Exiting."
+        NEED_EXIT=true
+      fi
+    done
+  fi
+
   # Check if there's a need to exit now
   if [ "${NEED_EXIT}" == true ]; then
     exit 1
@@ -86,6 +97,7 @@ if [ -f "${COMPOSE_FILE}" ]; then
     'LAUNCH_ENVFILES'
     'LAUNCH_DEVICES'
     'LAUNCH_VOLUMES'
+    'LAUNCH_EXT_VOLUMES'
     'LAUNCH_HOST_NETWORK'
     'LAUNCH_PORTS'
     'LAUNCH_NETWORKS'
@@ -201,11 +213,26 @@ xEOF
   fi
 
   # the volumes
-  if [ -n "${LAUNCH_VOLUMES}" ]; then
+  if \
+    [ -n "${LAUNCH_VOLUMES}" ] || \
+    [ -n "${LAUNCH_EXT_VOLUMES}" ] || \
+  ; then
     echo "    volumes:" >> "${COMPOSE_FILE}"
-    for VOLUME in ${LAUNCH_VOLUMES}; do
-      echo "      - ${VOLUME}" >> "${COMPOSE_FILE}"
-    done
+
+    # the bind mounts
+    if [ -n "${LAUNCH_VOLUMES}" ]; then
+      for VOLUME in ${LAUNCH_VOLUMES}; do
+        echo "      - ${VOLUME}" >> "${COMPOSE_FILE}"
+      done
+    fi
+
+    # the external volumes
+    if [ -n "${LAUNCH_EXT_VOLUMES}" ]; then
+      echo "    volumes:" >> "${COMPOSE_FILE}"
+      for VOLUME in ${LAUNCH_EXT_VOLUMES}; do
+        echo "      - ${VOLUME}" >> "${COMPOSE_FILE}"
+      done
+    fi
   fi
 
   # Add capabilities
@@ -420,6 +447,19 @@ xEOF
           } >> "${COMPOSE_FILE}"
         done
       fi
+    fi
+
+    # the volume declarations
+    if [ -n "${LAUNCH_EXT_VOLUMES}" ]; then
+      echo "volumes:" >> "${COMPOSE_FILE}"
+      read -ra ARR <<<"${LAUNCH_EXT_VOLUMES}"
+      for VOLUME in "${ARR[@]}"; do
+        IFS=':' read -r VOLUME PATH <<< "${VOLUME}"
+        {
+          echo "  ${VOLUME}:";
+          echo "    external: true";
+        } >> "${COMPOSE_FILE}"
+      done
     fi
   fi
 fi
